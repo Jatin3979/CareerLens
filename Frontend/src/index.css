@@ -1,1 +1,6 @@
 @import "tailwindcss";
+/* make dark theme for bg */
+body {
+  background-color: #1a1a1a;
+  color: #ffffff;
+}
