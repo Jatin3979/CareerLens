@@ -14,9 +14,11 @@ async function generateInterviewReportController(req, res) {
     }
 
     const { selfDescription, jobDescription } = req.body;
-    
+
     // Parse the PDF
-    const resumeContent = await  (new pdfParse.PDFParse(Uint8Array.from(resumeFile.buffer))).getText();
+    const resumeContent = await new pdfParse.PDFParse(
+      Uint8Array.from(resumeFile.buffer),
+    ).getText();
 
     // Generate the AI Report
     const report = await generateInterviewReport({
@@ -40,12 +42,41 @@ async function generateInterviewReportController(req, res) {
       message: "Interview report generated and saved successfully",
       interviewReport,
     });
-
   } catch (error) {
     // If ANY step above fails, it drops down to here safely
     console.error("Error generating interview report:", error);
-    return res.status(500).json({ message: "Failed to generate interview report" });
+    return res
+      .status(500)
+      .json({ message: "Failed to generate interview report" });
   }
 }
 
-module.exports = { generateInterviewReportController };
+const interviewReportController = async (req, res) => {
+  try {
+    const { interviewId } = req.params;
+    const report = await interviewReportModel.findById(interviewId);
+    return res.status(200).json({ report });
+  } catch (error) {
+    console.error("Error fetching interview report:", error);
+    return res
+      .status(500)
+      .json({ message: "Failed to fetch interview report" });
+  }
+};
+
+
+const getAllInterviewReportsController = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const reports = await interviewReportModel.find({ user: userId });
+    return res.status(200).json({ reports });
+  } catch (error) {
+    console.error("Error fetching all interview reports:", error);
+    return res.status(500).json({ message: "Failed to fetch all interview reports" });
+  }
+};
+module.exports = {
+  generateInterviewReportController,
+  interviewReportController,
+  getAllInterviewReportsController,
+};

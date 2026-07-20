@@ -86,6 +86,10 @@ const interviewReportSchema = new mongoose.Schema(
       type: String,
       required: [true, "Job description is required"],
     },
+    title: {
+      type: String,
+      required: [true, "Title is required"],
+    },
     resume: {
       type: String,
     },

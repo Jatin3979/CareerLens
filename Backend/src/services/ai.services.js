@@ -75,6 +75,7 @@ const interviewReportJsonSchema = {
     },
     preparationPlan: {
       type: "array",
+      minItems: 7,
       description:
         "A day-wise preparation plan for the candidate to follow in order to prepare for the interview effectively",
       items: {
