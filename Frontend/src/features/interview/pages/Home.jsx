@@ -7,7 +7,7 @@ const Home = () => {
   const [jobDescription, setJobDescription] = useState("");
   const [selfDescription, setSelfDescription] = useState("");
   const resumeInputRef = useRef();
-
+  console.log("reports in Home.jsx:", reports.length);
   const navigate = useNavigate();
 
   const handleGenerateReport = async () => {
@@ -17,6 +17,7 @@ const Home = () => {
       selfDescription,
       resumeFile,
     });
+    // console.log("Generated report data id:", data._id);
     navigate(`/interview/${data._id}`);
   };
 
@@ -221,7 +222,7 @@ const Home = () => {
       </div>
 
       {/* Recent Reports List */}
-      {/* {reports.length > 0 && (
+      {reports.length > 0 && (
         <section className="recent-reports">
           <h2>My Recent Interview Plans</h2>
           <ul className="reports-list">
@@ -244,7 +245,7 @@ const Home = () => {
             ))}
           </ul>
         </section>
-      )} */}
+      )}
 
       {/* Page Footer */}
       <footer className="page-footer">

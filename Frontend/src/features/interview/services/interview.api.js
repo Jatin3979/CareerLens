@@ -20,8 +20,10 @@ export const getInterviewReport = async ( {jobDescription, selfDescription, resu
 };
 
 
-export const getInterviewReportById = async ( {interviewId} ) => {
+export const getInterviewReportById = async ( interviewId ) => {
+    // console.log("Fetching interview report for ID:", interviewId);
     const response = await api.get(`/interview/report/${interviewId}`);
+    // console.log("Fetched report data:", response.data);
     return response.data;
 }
 
