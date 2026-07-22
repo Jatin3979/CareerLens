@@ -7,7 +7,6 @@ const Home = () => {
   const [jobDescription, setJobDescription] = useState("");
   const [selfDescription, setSelfDescription] = useState("");
   const resumeInputRef = useRef();
-  console.log("reports in Home.jsx:", reports.length);
   const navigate = useNavigate();
 
   const handleGenerateReport = async () => {
