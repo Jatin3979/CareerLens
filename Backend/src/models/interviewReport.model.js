@@ -70,7 +70,7 @@ const preparationPlanSchema = new mongoose.Schema(
     day: {
       type: Number,
     },
-    task: {
+    tasks: {
       type: [String],
     },
     focus: {

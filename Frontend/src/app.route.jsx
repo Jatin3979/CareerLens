@@ -2,8 +2,11 @@ import { createBrowserRouter } from "react-router-dom";
 import Login from "./features/auth/pages/Login";
 import Register from "./features/auth/pages/Register";
 import Protected from "./features/auth/components/Protected";
+import InterviewLayout from "./features/interview/layouts/InterviewLayout";
 import Home from "./features/interview/pages/Home";
 import Interview from "./features/interview/pages/Interview";
+import Contact from "./features/portfolio/pages/Contact"
+import Resume from "./features/portfolio/pages/Resume";
 
 export const router = createBrowserRouter([
   {
@@ -15,15 +18,28 @@ export const router = createBrowserRouter([
     element: <Register />,
   },
   {
-    path: "/",
-    element:<Protected><Home /></Protected>,
+    element: (
+      <Protected>
+        <InterviewLayout />
+      </Protected>
+    ),
+    children: [
+      {
+        path: "/",
+        element: <Home />,
+      },
+      {
+        path: "/interview/:interviewId",
+        element: <Interview />,
+      },
+      {
+        path:"/contact",
+        element: <Contact />
+      }
+    ],
   },
   {
-    path: "/interview/:interviewId",
-    element:<Protected><Interview /></Protected>,
+    path: "/resume",
+    element: <Protected><Resume /></Protected>, // or remove <Protected> if you want it public
   }
-
-
-
-
 ]);
