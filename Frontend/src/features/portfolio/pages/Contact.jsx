@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { useContact } from "../hooks/useContact"; // 👈 Import your new hook
 
 const Contact = () => {
@@ -135,8 +136,8 @@ const Contact = () => {
               </div>
 
               <div>
-                <a
-                  href="/resume"
+                <Link
+                  to="/resume"
                   className="group flex w-full items-center justify-center gap-3 rounded-2xl bg-slate-800/80 border border-slate-700 px-6 py-4 text-sm font-bold text-slate-200 shadow-lg transition-all hover:bg-slate-800 hover:border-slate-500 hover:text-white active:scale-[0.98]"
                 >
                   <svg
@@ -157,7 +158,7 @@ const Contact = () => {
                     <path d="m9 15 3 3 3-3" />
                   </svg>
                   View Resume
-                </a>
+                </Link>
               </div>
             </div>
           </div>
