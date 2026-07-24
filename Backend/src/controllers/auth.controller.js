@@ -25,7 +25,13 @@ async function registerUser(req, res) {
       process.env.JWT_SECRET,
       { expiresIn: "1h" },
     );
-    res.cookie("token", token);
+    res.cookie("token", token, {
+  httpOnly: true,
+  // 🔴 In production, these two MUST be configured this way for cross-domain cookies:
+  secure: true, 
+  sameSite: "none", 
+  maxAge: 24 * 60 * 60 * 1000 // 1 day
+});
     await user.save();
     res.status(201).json({
       httpOnly: true,
@@ -62,7 +68,13 @@ async function loginUser(req, res) {
       process.env.JWT_SECRET,
       { expiresIn: "1h" },
     );
-    res.cookie("token", token);
+    res.cookie("token", token, {
+  httpOnly: true,
+  // 🔴 In production, these two MUST be configured this way for cross-domain cookies:
+  secure: true, 
+  sameSite: "none", 
+  maxAge: 24 * 60 * 60 * 1000 // 1 day
+});
     res.json({
       message: "Login successful",
       user: {
