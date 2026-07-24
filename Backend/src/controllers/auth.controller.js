@@ -28,6 +28,10 @@ async function registerUser(req, res) {
     res.cookie("token", token);
     await user.save();
     res.status(201).json({
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // Must be true in production
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // 'none' allows cross-domain cookies
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
       message: "User registered successfully",
       user: {
         id: user._id,
@@ -100,8 +104,6 @@ async function getUserProfile(req, res) {
       .json({ message: "Error fetching user profile", error: error.message });
   }
 }
-
-
 
 module.exports = {
   registerUser,
