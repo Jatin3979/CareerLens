@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const [fileName, setFileName] = useState("");
+  const [error, setError] = useState(null); // Tracks validation/API errors
+  
   const { loading, generateReport, reports } = useInterview();
   const [jobDescription, setJobDescription] = useState("");
   const [selfDescription, setSelfDescription] = useState("");
@@ -11,20 +13,48 @@ const Home = () => {
   const navigate = useNavigate();
 
   const handleGenerateReport = async () => {
+    // Clear any previous errors
+    setError(null);
     const resumeFile = resumeInputRef.current?.files[0];
-    const data = await generateReport({
-      jobDescription,
-      selfDescription,
-      resumeFile,
-    });
-    if (data && data._id) {
-      navigate(`/interview/${data._id}`);
+
+    // ── Frontend Validation ──
+    if (!jobDescription.trim()) {
+      setError("Please provide a Target Job Description to proceed.");
+      setTimeout(() => setError(null), 5000);
+      return;
+    }
+
+    if (!resumeFile && !selfDescription.trim()) {
+      setError("Please provide either a Resume or a Quick Self-Description.");
+      setTimeout(() => setError(null), 5000);
+      return;
+    }
+
+    // ── API Call ──
+    try {
+      const data = await generateReport({
+        jobDescription,
+        selfDescription,
+        resumeFile,
+      });
+      
+      if (data && data._id) {
+        navigate(`/interview/${data._id}`);
+      }
+    } catch (err) {
+      const errorMessage = 
+        err.response?.data?.message || 
+        err.message || 
+        "Failed to generate strategy. Please try again.";
+        
+      setError(errorMessage);
+      setTimeout(() => setError(null), 5000);
     }
   };
 
   if (loading) {
     return (
-      <main className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-950/80 backdrop-blur-md">
+      <main className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-slate-950/80 backdrop-blur-md">
         <div className="relative flex h-20 w-20 sm:h-24 sm:w-24 items-center justify-center mb-6">
           <div className="absolute h-full w-full animate-ping rounded-full bg-cyan-500/20"></div>
           <div className="h-14 w-14 sm:h-16 sm:w-16 animate-spin rounded-full border-4 border-t-cyan-500 border-r-violet-500 border-b-transparent border-l-transparent"></div>
@@ -43,6 +73,27 @@ const Home = () => {
         <div className="absolute top-[-10%] left-[-5%] h-[300px] w-[300px] sm:h-[500px] sm:w-[500px] rounded-full bg-cyan-600/10 blur-[100px] sm:blur-[120px] animate-pulse" />
         <div className="absolute bottom-[-10%] right-[-5%] h-[300px] w-[300px] sm:h-[500px] sm:w-[500px] rounded-full bg-violet-600/10 blur-[100px] sm:blur-[120px] animate-pulse delay-1000" />
       </div>
+
+      {/* ── Fixed Error Popup (Toast) ── */}
+      {error && (
+        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[100] w-[calc(100%-2rem)] max-w-lg flex items-start gap-3 rounded-2xl border border-rose-500/30 bg-slate-900/95 px-5 py-4 text-sm font-medium text-rose-400 backdrop-blur-xl shadow-2xl shadow-rose-500/20 animate-in fade-in zoom-in-95 slide-in-from-top-10 duration-300">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 mt-0.5">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          <p className="flex-grow leading-relaxed">{error}</p>
+          <button 
+            onClick={() => setError(null)}
+            className="shrink-0 p-1 text-rose-400/60 hover:text-rose-400 transition-colors rounded-lg hover:bg-rose-500/10"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-16">
         {/* Page Header */}
@@ -84,6 +135,7 @@ const Home = () => {
 
               <div className="relative flex-grow">
                 <textarea
+                  value={jobDescription}
                   onChange={(e) => setJobDescription(e.target.value)}
                   className="h-full min-h-[220px] sm:min-h-[300px] w-full resize-none rounded-2xl border border-slate-700 bg-slate-950/50 p-4 sm:p-6 text-sm leading-relaxed text-slate-200 placeholder:text-slate-500 outline-none transition-all focus:border-cyan-500 focus:bg-slate-900 focus:ring-2 focus:ring-cyan-500/20 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                   placeholder={`Paste the full job description here...\ne.g. 'Senior Frontend Engineer at Google requires proficiency in React, TypeScript, and large-scale system design...'`}
@@ -190,6 +242,7 @@ const Home = () => {
                   Quick Self-Description
                 </label>
                 <textarea
+                  value={selfDescription}
                   onChange={(e) => setSelfDescription(e.target.value)}
                   id="selfDescription"
                   className="h-28 sm:h-32 w-full resize-none rounded-2xl border border-slate-700 bg-slate-950/50 p-4 sm:p-5 text-sm leading-relaxed text-slate-200 placeholder:text-slate-600 outline-none transition-all focus:border-violet-500 focus:bg-slate-900 focus:ring-2 focus:ring-violet-500/20 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
@@ -279,7 +332,7 @@ const Home = () => {
       </div>
 
       {/* ── Fixed Bottom Action Bar (Mobile Only) ── */}
-      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-slate-950/85 backdrop-blur-xl border-t border-white/10 p-4 pb-6 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-[90] bg-slate-950/85 backdrop-blur-xl border-t border-white/10 p-4 pb-6 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
         <button
           onClick={handleGenerateReport}
           className="group flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 px-6 py-4 text-sm font-bold text-white shadow-lg shadow-cyan-500/25 active:scale-[0.98] transition-transform border border-cyan-400/20"

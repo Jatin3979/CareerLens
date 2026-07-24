@@ -1,29 +1,26 @@
-// src/features/portfolio/pages/Contact.jsx
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { useContact } from "../hooks/useContact"; // 👈 Import your new hook
 
 const Contact = () => {
+  // 1. UI State (just for the input fields)
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     message: "",
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const handleSubmit = (e) => {
+  // 2. Hook State (handles the backend process)
+  const { isSubmitting, isSubmitted, error, submitContactForm, clearError } =
+    useContact();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setIsSubmitted(true);
+    // Call the hook. If it returns true (success), clear the form inputs.
+    const isSuccess = await submitContactForm(formData);
+    if (isSuccess) {
       setFormData({ name: "", email: "", message: "" });
-
-      // Reset success message after 5 seconds
-      setTimeout(() => setIsSubmitted(false), 5000);
-    }, 1500);
+    }
   };
 
   const handleChange = (e) => {
@@ -38,7 +35,36 @@ const Contact = () => {
         <div className="absolute bottom-[-10%] right-[-5%] h-[300px] w-[300px] sm:h-[500px] sm:w-[500px] rounded-full bg-violet-600/10 blur-[100px] sm:blur-[120px] animate-pulse delay-1000" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
+        {/* Fixed Error Popup for failed sends */}
+        {error && (
+          <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[100] w-[calc(100%-2rem)] max-w-lg flex items-center gap-3 rounded-2xl border border-rose-500/30 bg-slate-900/95 px-5 py-4 text-sm font-medium text-rose-400 backdrop-blur-xl shadow-2xl shadow-rose-500/20 animate-in fade-in zoom-in-95 slide-in-from-top-10 duration-300">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="shrink-0"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <p className="flex-grow">{error}</p>
+            <button
+              onClick={clearError}
+              className="shrink-0 p-1 hover:bg-rose-500/20 rounded"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
         {/* Header */}
         <header className="text-center mb-12 sm:mb-16">
           <span className="inline-block rounded-full bg-slate-800/80 border border-white/5 px-3 py-1 text-xs font-medium text-slate-400 mb-4 tracking-wider uppercase">
@@ -55,7 +81,6 @@ const Contact = () => {
         <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start max-w-6xl mx-auto">
           {/* ── Left Column: Contact Info & Resume ── */}
           <div className="lg:col-span-5 flex flex-col gap-6">
-            {/* Direct Email Card */}
             <a
               href="mailto:jatin397911@gmail.com"
               className="group rounded-3xl border border-white/10 bg-slate-900/40 backdrop-blur-xl p-8 transition-all hover:border-cyan-500/30 hover:bg-slate-800/50 hover:shadow-lg hover:shadow-cyan-500/10 active:scale-[0.98]"
@@ -85,7 +110,6 @@ const Contact = () => {
               </p>
             </a>
 
-            {/* Resume & Location Card */}
             <div className="rounded-3xl border border-white/10 bg-slate-900/40 backdrop-blur-xl p-8">
               <div className="flex items-center gap-4 mb-8 pb-8 border-b border-white/10">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-violet-500/10 text-violet-400 border border-violet-500/20">
@@ -110,27 +134,31 @@ const Contact = () => {
                 </div>
               </div>
 
-              {/* View Resume Button */}
-              <Link
-                to="/resume"
-                className="group flex w-full items-center justify-center gap-3 rounded-2xl bg-slate-800/80 border border-slate-700 px-6 py-4 text-sm font-bold text-slate-200 shadow-lg transition-all hover:bg-slate-800 hover:border-slate-500 hover:text-white active:scale-[0.98]"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="text-slate-400 group-hover:text-white transition-colors"
+              <div>
+                <a
+                  href="/resume"
+                  className="group flex w-full items-center justify-center gap-3 rounded-2xl bg-slate-800/80 border border-slate-700 px-6 py-4 text-sm font-bold text-slate-200 shadow-lg transition-all hover:bg-slate-800 hover:border-slate-500 hover:text-white active:scale-[0.98]"
                 >
-                  <path d="M2 12h4l3-9 5 18 3-9h5" />
-                </svg>
-                View Resume
-              </Link>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="text-slate-400 group-hover:text-white transition-colors"
+                  >
+                    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <path d="M12 18v-6" />
+                    <path d="m9 15 3 3 3-3" />
+                  </svg>
+                  View Resume
+                </a>
+              </div>
             </div>
           </div>
 
@@ -145,7 +173,6 @@ const Contact = () => {
               </p>
 
               <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-                {/* Name Input */}
                 <div>
                   <label
                     htmlFor="name"
@@ -164,7 +191,6 @@ const Contact = () => {
                   />
                 </div>
 
-                {/* Email Input */}
                 <div>
                   <label
                     htmlFor="email"
@@ -183,7 +209,6 @@ const Contact = () => {
                   />
                 </div>
 
-                {/* Message Textarea */}
                 <div>
                   <label
                     htmlFor="message"
@@ -202,7 +227,6 @@ const Contact = () => {
                   />
                 </div>
 
-                {/* Submit Button & Feedback */}
                 <div className="mt-2 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
                   {isSubmitted ? (
                     <div className="flex items-center gap-2 text-emerald-400 font-medium bg-emerald-500/10 px-4 py-2 rounded-xl border border-emerald-500/20 w-full sm:w-auto justify-center">
@@ -219,7 +243,7 @@ const Contact = () => {
                       >
                         <polyline points="20 6 9 17 4 12" />
                       </svg>
-                      Message sent successfully!
+                      Thanks for reaching out! I'll connect with you shortly.
                     </div>
                   ) : (
                     <p className="text-xs text-slate-500 hidden sm:block">

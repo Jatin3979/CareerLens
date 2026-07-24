@@ -16,6 +16,7 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/interview", interviewRoutes);
+app.use("/api/portfolio", require("./routes/portfolio.routes"));
 module.exports = app;
 
 
