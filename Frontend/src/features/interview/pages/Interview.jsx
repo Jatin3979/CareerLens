@@ -141,8 +141,36 @@ const Interview = () => {
     }
   };
 
+  // Extracted Skill Gaps for reuse in mobile vs desktop flow
+  const renderSkillGaps = (isDesktop = false) => {
+    if (!report.skillGaps || report.skillGaps.length === 0) return null;
+    return (
+      <div className={`rounded-3xl border border-white/10 bg-slate-900/40 backdrop-blur-xl p-5 sm:p-6 shadow-xl ${!isDesktop ? 'mb-6 lg:hidden' : 'hidden lg:block'}`}>
+        <div className="flex items-center gap-2 mb-4">
+          <span className="text-amber-400">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </span>
+          <p className="text-sm font-bold text-slate-200 uppercase tracking-wider">Skill Gaps</p>
+        </div>
+        
+        <div className="flex flex-wrap gap-2">
+          {report.skillGaps.map((gap, i) => (
+            <span
+              key={i}
+              className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold border ${getSeverityStyles(gap.severity)}`}
+            >
+              {gap.skill}
+              <span className="ml-1.5 opacity-60 font-normal">({gap.severity})</span>
+            </span>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans relative overflow-x-hidden pb-28 lg:pb-20">
+    // Increased pb-36 to prevent the fixed bottom mobile bar from covering the last item
+    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans relative overflow-x-hidden pb-36 lg:pb-20">
       
       {/* Background Ambient Glows */}
       <div className="absolute inset-0 -z-10 pointer-events-none fixed">
@@ -150,25 +178,32 @@ const Interview = () => {
         <div className="absolute bottom-[-10%] right-[-5%] h-[300px] w-[300px] sm:h-[500px] sm:w-[500px] rounded-full bg-violet-600/10 blur-[100px] sm:blur-[120px] animate-pulse delay-1000" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-12 lg:pt-20">
+      {/* Increased pt-24 sm:pt-28 to clear the global app top navbar completely on mobile */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 lg:pt-20">
         
         {/* ── Brilliant Mobile Header ── */}
-        <header className="lg:hidden mb-4 flex items-center justify-between gap-4">
-          <div className="flex-1 min-w-0">
-            <span className="inline-block rounded-full bg-slate-800/80 border border-white/5 px-2.5 py-0.5 text-[10px] font-medium text-slate-400 mb-2">
-              Target Role
-            </span>
-            <h1 className="text-2xl font-extrabold text-white truncate leading-tight">{report.title || "Interview Strategy"}</h1>
-          </div>
-          
-          {/* Compact Match Score Ring for Mobile */}
-          <div className={`flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-full border-[3px] ${getScoreStyles(report.matchScore)}`}>
-            <span className="text-lg font-extrabold leading-none">{report.matchScore}</span>
+        <header className="lg:hidden mb-6 flex flex-col gap-4">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <span className="inline-block rounded-full bg-slate-800/80 border border-white/5 px-2.5 py-0.5 text-[10px] font-medium text-slate-400 mb-2">
+                Target Role
+              </span>
+              <h1 className="text-2xl font-extrabold text-white truncate leading-tight">{report.title || "Interview Strategy"}</h1>
+            </div>
+            
+            {/* Compact Match Score Ring for Mobile */}
+            <div className={`flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-full border-[3px] shadow-lg ${getScoreStyles(report.matchScore)}`}>
+              <span className="text-lg font-extrabold leading-none">{report.matchScore}</span>
+            </div>
           </div>
         </header>
 
+        {/* ── Mobile Skill Gaps (Rendered up top for maximum visibility) ── */}
+        {renderSkillGaps(false)}
+
         {/* ── Brilliant Mobile Sticky Nav ── */}
-        <div className="lg:hidden sticky top-0 z-40 -mx-4 px-4 py-3 mb-6 bg-slate-950/85 backdrop-blur-xl border-b border-white/5 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        {/* top-[70px] ensures it doesn't overlap the global app navbar when scrolling */}
+        <div className="lg:hidden sticky top-[70px] sm:top-[80px] z-40 -mx-4 px-4 py-3 mb-6 bg-slate-950/90 backdrop-blur-2xl border-b border-white/5 shadow-md overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <div className="flex gap-2 w-max">
             {NAV_ITEMS.map((item) => (
               <button
@@ -304,29 +339,8 @@ const Interview = () => {
               </p>
             </div>
 
-            {/* Skill Gaps Card */}
-            {report.skillGaps && report.skillGaps.length > 0 && (
-              <div className="rounded-3xl border border-white/10 bg-slate-900/40 backdrop-blur-xl p-5 sm:p-6 shadow-xl mb-4 lg:mb-0">
-                <div className="flex items-center gap-2 mb-5">
-                  <span className="text-amber-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                  </span>
-                  <p className="text-sm font-bold text-slate-200 uppercase tracking-wider">Skill Gaps</p>
-                </div>
-                
-                <div className="flex flex-wrap gap-2">
-                  {report.skillGaps.map((gap, i) => (
-                    <span
-                      key={i}
-                      className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold border ${getSeverityStyles(gap.severity)}`}
-                    >
-                      {gap.skill}
-                      <span className="ml-1.5 opacity-60 font-normal">({gap.severity})</span>
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* Desktop Skill Gaps (Hidden on mobile as it renders at the top) */}
+            {renderSkillGaps(true)}
             
           </aside>
 
