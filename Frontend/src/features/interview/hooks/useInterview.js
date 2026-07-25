@@ -17,72 +17,66 @@ export const useInterview = () => {
 
     const generateReport = async ({ jobDescription, selfDescription, resumeFile }) => {
         setLoading(true)
-        let response = null
         try {
-            response = await getInterviewReport({ jobDescription, selfDescription, resumeFile })
+            const response = await getInterviewReport({ jobDescription, selfDescription, resumeFile })
             setReport(response.interviewReport)
-        } catch (error) {
-            console.log(error)
+            return response.interviewReport
         } finally {
             setLoading(false)
         }
-        return response.interviewReport
     }
 
     const getReportById = async (interviewId) => {
         setLoading(true)
-        let response = null
         try {
-            response = await getInterviewReportById(interviewId)
+            const response = await getInterviewReportById(interviewId)
             setReport(response.report)
-        } catch (error) {
-            console.log(error)
+            return response.report
         } finally {
             setLoading(false)
         }
-        return response.report
     }
 
     const getReports = async () => {
         setLoading(true)
-        let response = null
         try {
-            response = await getAllInterviewReports()
+            const response = await getAllInterviewReports()
             setReports(response.reports)
-        } catch (error) {
-            console.log(error)
+            return response.reports
         } finally {
             setLoading(false)
         }
-
-        return response.reports
     }
 
     const getResumePdf = async (interviewReportId) => {
         setLoading(true)
-        let response = null
         try {
-            response = await generateResumePdf({ interviewReportId })
+            const response = await generateResumePdf({ interviewReportId })
             const url = window.URL.createObjectURL(new Blob([ response ], { type: "application/pdf" }))
             const link = document.createElement("a")
             link.href = url
             link.setAttribute("download", `resume_${interviewReportId}.pdf`)
             document.body.appendChild(link)
             link.click()
-        }
-        catch (error) {
-            console.log(error)
         } finally {
             setLoading(false)
         }
     }
 
     useEffect(() => {
-        if (interviewId) {
-            getReportById(interviewId)
-        } else {
-            getReports()
+        const loadReports = async () => {
+            try {
+                if (interviewId) {
+                    await getReportById(interviewId)
+                } else {
+                    await getReports()
+                }
+            } catch (error) {
+                console.error("Failed to load interview data:", error)
+            }
         }
+
+        loadReports()
     }, [ interviewId ])
 
     return { loading, report, reports, generateReport, getReportById, getReports,getResumePdf }

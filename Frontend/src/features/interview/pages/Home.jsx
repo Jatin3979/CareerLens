@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const [fileName, setFileName] = useState("");
-  const [error, setError] = useState(null); // Tracks validation/API errors
+  const [error, setError] = useState(null); // Tracks frontend validation errors
   
   const { loading, generateReport, reports } = useInterview();
   const [jobDescription, setJobDescription] = useState("");
@@ -41,14 +41,8 @@ const Home = () => {
       if (data && data._id) {
         navigate(`/interview/${data._id}`);
       }
-    } catch (err) {
-      const errorMessage = 
-        err.response?.data?.message || 
-        err.message || 
-        "Failed to generate strategy. Please try again.";
-        
-      setError(errorMessage);
-      setTimeout(() => setError(null), 5000);
+    } catch {
+      // Global axios interceptor handles backend error notifications.
     }
   };
 

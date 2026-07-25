@@ -11,8 +11,7 @@ const Contact = () => {
   });
 
   // 2. Hook State (handles the backend process)
-  const { isSubmitting, isSubmitted, error, submitContactForm, clearError } =
-    useContact();
+  const { isSubmitting, isSubmitted, submitContactForm } = useContact();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,35 +36,6 @@ const Contact = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
-        {/* Fixed Error Popup for failed sends */}
-        {error && (
-          <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[100] w-[calc(100%-2rem)] max-w-lg flex items-center gap-3 rounded-2xl border border-rose-500/30 bg-slate-900/95 px-5 py-4 text-sm font-medium text-rose-400 backdrop-blur-xl shadow-2xl shadow-rose-500/20 animate-in fade-in zoom-in-95 slide-in-from-top-10 duration-300">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="shrink-0"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="8" x2="12" y2="12" />
-              <line x1="12" y1="16" x2="12.01" y2="16" />
-            </svg>
-            <p className="flex-grow">{error}</p>
-            <button
-              onClick={clearError}
-              className="shrink-0 p-1 hover:bg-rose-500/20 rounded"
-            >
-              ✕
-            </button>
-          </div>
-        )}
-
         {/* Header */}
         <header className="text-center mb-12 sm:mb-16">
           <span className="inline-block rounded-full bg-slate-800/80 border border-white/5 px-3 py-1 text-xs font-medium text-slate-400 mb-4 tracking-wider uppercase">

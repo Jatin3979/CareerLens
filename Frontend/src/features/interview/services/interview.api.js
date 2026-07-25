@@ -1,15 +1,4 @@
-import axios from "axios";
-
-const apiBaseUrl = import.meta.env.VITE_API_URL?.trim();
-
-if (!apiBaseUrl) {
-    throw new Error("VITE_API_URL is not defined. Set it in Frontend/.env");
-}
-
-const api = axios.create({
-    baseURL: apiBaseUrl,
-    withCredentials: true,
-});
+import api from "../../../services/api";
 
 export const getInterviewReport = async ( {jobDescription, selfDescription, resumeFile } ) => {
     const formData = new FormData();
