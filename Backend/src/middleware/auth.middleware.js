@@ -8,7 +8,7 @@ const authenticateToken = async(req, res, next) => {
   }
    const isBlacklisted = await blacklistModel.findOne({ token });
    if(isBlacklisted){
-    return res.status(401).json({ message: "Token is blacklisted" });
+    return res.status(401);
    }
 
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
