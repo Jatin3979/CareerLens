@@ -8,28 +8,26 @@ if (!apiBaseUrl) {
 }
 
 const api = axios.create({
-  baseURL: apiBaseUrl,
+  baseURL: apiBaseUrl ,
   withCredentials: true,
 });
 
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    const errorMessage =
-      error.response?.data?.message ||
-      error.message ||
-      "Something went wrong. Please try again.";
+    const skipToast = error.config?.skipErrorToast;
 
-    toast.error(errorMessage, {
-      style: {
-        background: "#DC2626",
-        color: "#FFFFFF",
-      },
-      iconTheme: {
-        primary: "#FFFFFF",
-        secondary: "#DC2626",
-      },
-    });
+    if (!skipToast) {
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Something went wrong. Please try again.";
+
+      toast.error(errorMessage, {
+        style: { background: "#DC2626", color: "#FFFFFF" },
+        iconTheme: { primary: "#FFFFFF", secondary: "#DC2626" },
+      });
+    }
 
     return Promise.reject(error);
   },

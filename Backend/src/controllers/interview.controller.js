@@ -2,7 +2,10 @@
 global.DOMMatrix = require("dommatrix");
 
 const pdfParse = require("pdf-parse");
-const { generateInterviewReport ,generateResumePdf} = require("../services/ai.services");
+const {
+  generateInterviewReport,
+  generateResumePdf,
+} = require("../services/ai.services");
 const interviewReportModel = require("../models/interviewReport.model");
 
 async function generateInterviewReportController(req, res) {
@@ -64,18 +67,20 @@ const interviewReportController = async (req, res) => {
   }
 };
 
-
 const getAllInterviewReportsController = async (req, res) => {
   try {
     const userId = req.user._id;
-    const reports = await interviewReportModel.find({ user: userId });
+    const reports = await interviewReportModel
+      .find({ user: userId })
+      .sort({ createdAt: -1 });
     return res.status(200).json({ reports });
   } catch (error) {
     console.error("Error fetching all interview reports:", error);
-    return res.status(500).json({ message: "Failed to fetch all interview reports" });
+    return res
+      .status(500)
+      .json({ message: "Failed to fetch all interview reports" });
   }
 };
-
 
 const getResumePdfController = async (req, res) => {
   try {
@@ -90,7 +95,10 @@ const getResumePdfController = async (req, res) => {
       jobDescription: report.jobDescription,
     });
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `attachment; filename=resume_${interviewId}.pdf`);
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=resume_${interviewId}.pdf`,
+    );
     res.send(pdfBuffer);
   } catch (error) {
     console.error("Error generating resume PDF:", error);

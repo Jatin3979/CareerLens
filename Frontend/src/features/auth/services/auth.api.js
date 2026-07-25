@@ -22,7 +22,8 @@ export const logoutUser = async () => {
   return response.data;
 };
 
+// auth.api.js
 export const getCurrentUser = async () => {
-  const response = await api.get("/auth/profile");
+  const response = await api.get("/auth/profile", { skipErrorToast: true });
   return response.data;
 };
