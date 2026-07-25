@@ -1,4 +1,4 @@
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 
 const MAX_NAME_LENGTH = 100;
 const MAX_EMAIL_LENGTH = 254;
@@ -15,30 +15,12 @@ const escapeHtml = (value) =>
 
 const sanitizeSubjectPart = (value) => value.replace(/[\r\n]+/g, " ").trim();
 
-const getMailerConfig = () => {
-  const { EMAIL_USER, EMAIL_PASS } = process.env;
-  if (!EMAIL_USER || !EMAIL_PASS) {
+const getResendClient = () => {
+  const { RESEND_API_KEY } = process.env;
+  if (!RESEND_API_KEY) {
     return null;
   }
-
-  const host = process.env.EMAIL_HOST || "smtp.gmail.com";
-  const port = Number(process.env.EMAIL_PORT || 587);
-  const secure = process.env.EMAIL_SECURE
-    ? process.env.EMAIL_SECURE === "true"
-    : port === 465;
-
-  return {
-    host,
-    port,
-    secure,
-    auth: {
-      user: EMAIL_USER,
-      pass: EMAIL_PASS,
-    },
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 15000,
-  };
+  return new Resend(RESEND_API_KEY);
 };
 
 const submitContactForm = async (req, res) => {
@@ -86,8 +68,8 @@ const submitContactForm = async (req, res) => {
       });
     }
 
-    const mailerConfig = getMailerConfig();
-    if (!mailerConfig) {
+    const resend = getResendClient();
+    if (!resend) {
       console.error("Portfolio contact email is not configured.");
       return res.status(500).json({
         success: false,
@@ -95,10 +77,23 @@ const submitContactForm = async (req, res) => {
       });
     }
 
-    const transporter = nodemailer.createTransport(mailerConfig);
+    // EMAIL_FROM must be an address on a domain you've verified in the Resend
+    // dashboard (e.g. "Portfolio <contact@yourdomain.com>"). Until a domain is
+    // verified, Resend only allows sending FROM their sandbox address
+    // "onboarding@resend.dev", and only TO the email you signed up with.
+    const fromAddress = process.env.EMAIL_FROM || "onboarding@resend.dev";
+    const toAddress = process.env.EMAIL_TO || process.env.EMAIL_USER;
 
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
+    if (!toAddress) {
+      console.error("EMAIL_TO is not configured.");
+      return res.status(500).json({
+        success: false,
+        message: "Email service is temporarily unavailable.",
+      });
+    }
+
+    const { data, error } = await resend.emails.send({
+      from: fromAddress,
       to: process.env.EMAIL_USER,
       replyTo: trimmedEmail,
       subject: `New Portfolio Message from ${sanitizeSubjectPart(trimmedName)}`,
@@ -112,19 +107,28 @@ const submitContactForm = async (req, res) => {
           <p style="white-space: pre-wrap;">${escapeHtml(trimmedMessage)}</p>
         </div>
       `,
-    };
+    });
 
-    await transporter.sendMail(mailOptions);
+    if (error) {
+      console.error("Resend error while sending portfolio message:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error while sending email.",
+      });
+    }
+
+    console.log("Portfolio email sent, id:", data?.id);
 
     return res
       .status(200)
       .json({ success: true, message: "Email sent successfully." });
   } catch (error) {
-    console.error("Nodemailer error while sending portfolio message:", error);
+    console.error("Resend error while sending portfolio message:", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error while sending email.",
     });
   }
 };
+
 module.exports = { submitContactForm };
