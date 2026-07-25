@@ -73,7 +73,7 @@ This project exists to make preparation role-specific by combining:
 
 ### AI Features
 
-- ✅ Gemini-powered interview report generation (`gemini-3.5-flash`)
+- ✅ Gemini-powered interview report generation (`gemini-3.5-flash-lite`)
 - ✅ Strict JSON schema-based AI responses
 - ✅ AI-generated tailored resume HTML + PDF (`gemini-3.1-flash-lite` + Puppeteer)
 
@@ -136,8 +136,7 @@ This project exists to make preparation role-specific by combining:
 
 ## Demo
 
-- **Live Demo:** `https://your-live-demo-url`
-- **Video Demo:** `https://your-video-demo-url`
+- **Live Demo:** `https://careerlens2.netlify.app`
 
 ---
 

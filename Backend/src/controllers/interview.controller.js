@@ -33,7 +33,7 @@ async function generateInterviewReportController(req, res) {
     // 3. Save to Database (Now safely inside the try block)
     // Using .create() handles both building and saving the document
     const interviewReport = await interviewReportModel.create({
-      user: req.user._id,
+      user: req.user.userId,
       resume: resumeContent.text,
       selfDescription,
       jobDescription,
@@ -69,7 +69,7 @@ const interviewReportController = async (req, res) => {
 
 const getAllInterviewReportsController = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.user.userId;
     const reports = await interviewReportModel
       .find({ user: userId })
       .sort({ createdAt: -1 });

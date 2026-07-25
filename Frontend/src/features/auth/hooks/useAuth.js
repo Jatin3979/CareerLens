@@ -46,33 +46,35 @@ export const useAuth = () => {
       throw error;
     }
   };
-  const fetchCurrentUser = async () => {
-    setLoading(true);
-    try {
-      const userData = await getCurrentUser();
-      setUser(userData.user);
-      setLoading(false);
-      return userData;
-    } catch (error) {
-      setLoading(false);
-      throw error;
-    }
-  };
+  // const fetchCurrentUser = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const userData = await getCurrentUser();
+  //     setUser(userData.user);
+  //     setLoading(false);
+  //     return userData;
+  //   } catch (error) {
+  //     setLoading(false);
+  //     throw error;
+  //   }
+  // };
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const currentUser = await getCurrentUser();
-        setUser(currentUser);
-      } catch (error) {
-        console.error("Error fetching user:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchUser();
-  }, []);
+        const getAndSetUser = async () => {
+            try {
+
+                const data = await getCurrentUser()
+                setUser(data.user)
+                
+            } catch (err) { } finally {
+                setLoading(false)
+            }
+        }
+
+        getAndSetUser()
+
+    }, [])
 
   return {
     user,
@@ -80,6 +82,6 @@ export const useAuth = () => {
     login,
     register,
     logout,
-    fetchCurrentUser,
+    
   };
 };
